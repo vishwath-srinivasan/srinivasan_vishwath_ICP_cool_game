@@ -36,21 +36,21 @@ class Game: #initializing class Game
     def load_data(self, map):
         self.game_dir = path.dirname(__file__)
         self.img_dir = path.join(self.game_dir, 'images')
-        self.snd_dir = path.join(self.game_dir, 'audio')
-        self.map = Map(path.join(self.game_dir, map))
+        self.snd_dir = path.join(self.game_dir, 'audio') #gets directory from folder for audio and images
+        self.map = Map(path.join(self.game_dir, map)) #loads map data
     def new(self):
-        self.load_data('level1.txt')
+        self.load_data('level1.txt') #loads the map format from level1.txt
         self.all_sprites = pg.sprite.Group()
         self.all_walls = pg.sprite.Group()
-        self.all_mobs = pg.sprite.Group()
+        self.all_mobs = pg.sprite.Group() #makes groups for all types of objects
 
-        for row, tiles in enumerate(self.map.data):
+        for row, tiles in enumerate(self.map.data): #uses enumeration to iterate through each letter to put on map
             for col, tile in enumerate(tiles):
                 if tile == "1":
                     Wall(self, col, row)
                 if tile == "M":
-                    pass
-        for row, tiles in enumerate(self.map.data):
+                    Mob(self, col, row)
+        for row, tiles in enumerate(self.map.data): #saves Player for last
             for col, tile in enumerate(tiles):
                 if tile == "P":
                     Player(self, col, row)
@@ -59,7 +59,6 @@ class Game: #initializing class Game
         while self.playing: #will always be True until user exits game where self.running will become False
             self.dt = self.clock.tick(FPS) / 1000
             self.events() #when user launches game, self.running will be True, so it will run the events method
-            #self.update()
             self.draw() #draws the background color
             self.update() #updates the movement of the white block
     def events(self):
