@@ -53,7 +53,7 @@ class Game: #initializing class Game
         for row, tiles in enumerate(self.map.data): #saves Player for last
             for col, tile in enumerate(tiles):
                 if tile == "P":
-                    Player(self, col, row)
+                    self.player = Player(self, col, row)
     def run(self):
         self.playing = True
         while self.playing: #will always be True until user exits game where self.running will become False
