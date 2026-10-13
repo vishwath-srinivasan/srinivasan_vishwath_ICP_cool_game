@@ -43,6 +43,7 @@ class Game: #initializing class Game
         self.all_sprites = pg.sprite.Group()
         self.all_walls = pg.sprite.Group()
         self.all_mobs = pg.sprite.Group() #makes groups for all types of objects
+        self.all_coins = pg.sprite.Group() 
 
         for row, tiles in enumerate(self.map.data): #uses enumeration to iterate through each letter to put on map
             for col, tile in enumerate(tiles):
@@ -50,6 +51,8 @@ class Game: #initializing class Game
                     Wall(self, col, row)
                 if tile == "M":
                     Mob(self, col, row)
+                if tile == "C":
+                    Coin(self, col, row)
         for row, tiles in enumerate(self.map.data): #saves Player for last
             for col, tile in enumerate(tiles):
                 if tile == "P":

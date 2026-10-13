@@ -80,6 +80,9 @@ class Player(Sprite): #creates class Player
 
     def update(self):
         self.get_keys() #waits for input from games
+        hits = pg.sprite.spritecollide(self, self.game.all_coins, True)
+        if hits:
+            self.coins += 1
         self.animate() #does the animation
         self.rect.center = self.pos
         self.pos += self.vel * self.game.dt
@@ -182,3 +185,17 @@ class Mob(Sprite):
         self.hit_rect.centery = self.pos.y
         collide_with_walls(self, self.game.all_walls, 'y')
         self.rect.center = self.hit_rect.center
+
+class Coin(Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites, game.all_coins
+        Sprite.__init__(self, self.groups)
+        self.game = game
+        self.spritesheet = Spritesheet(path.join(self.game.img_dir, "sprite_sheet.png"))
+        self.image = self.spritesheet.get_image(TILESIZE*4, 0, TILESIZE, TILESIZE)
+        self.image.set_colorkey(BLACK)
+        self.rect = self.image.get_rect()
+        self.x = x * TILESIZE
+        self.y = y * TILESIZE
+        self.rect.x = self.x
+        self.rect.y = self.y 
