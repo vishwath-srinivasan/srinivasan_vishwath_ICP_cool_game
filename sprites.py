@@ -9,7 +9,7 @@ vec = pg.math.Vector2
 def collide_hit_rect(one, two):
     return one.hit_rect.colliderect(two.rect)
 
-def collide_with_walls(sprite, group, dir):
+def collide_with_walls(sprite, group, dir): #wall collision by checking hitbox of Player vs Wall so it doesn't faze through
     #check for x collision
     if dir == 'x':
         #checking to see if we've collided with hitrects
@@ -48,7 +48,8 @@ class Player(Sprite): #creates class Player
         self.pos = vec(x*TILESIZE,y*TILESIZE)
         self.last_update = 0
         self.current_frame = 0
-    def get_keys(self):
+        self.coins = 0
+    def get_keys(self): #gets input to move Player
         self.vel = vec(0,0)
         keys = pg.key.get_pressed()
         if keys[pg.K_LEFT] or keys[pg.K_a]: #checks if left arrow or "a" key is pressed
@@ -83,6 +84,7 @@ class Player(Sprite): #creates class Player
         hits = pg.sprite.spritecollide(self, self.game.all_coins, True)
         if hits:
             self.coins += 1
+            self.game.pickup_snd.play()
         self.animate() #does the animation
         self.rect.center = self.pos
         self.pos += self.vel * self.game.dt
@@ -117,64 +119,51 @@ class Mob(Sprite):
         self.load_images()
         self.image = pg.Surface((TILESIZE, TILESIZE)) #gets character pixel size from settings.py
         self.rect = self.image.get_rect() #draws rectangle for character
-        self.speed = 100
+        self.speed = 100 #sets speed
         self.vel = vec(0, 0)
         self.pos = vec(x*TILESIZE, y*TILESIZE)
         self.x = x * TILESIZE
         self.y = y * TILESIZE
-        print("player initialized")
         self.rect.x = self.x
         self.rect.y = self.y
         self.dir = "none"
         self.last_update = 0
         self.current_frame = 0
-        self.hit_rect = MOB_HIT_RECT
+        self.hit_rect = MOB_HIT_RECT #hitbox
 
-    def animate(self):
-        now = pg.time.get_ticks()
-        if now - self.last_update > 350: #checks if time between last update is greater than 350 ms
-            self.last_update = now
-            self.current_frame = (self.current_frame + 1) % len(self.idle_frames) #updates to next frame then when at last frame modulus remainder will set it back to 0
-            bottom = self.rect.bottom
-            self.image = self.idle_frames[self.current_frame] #sets self.image to current frame
-            self.rect = self.image.get_rect()
-            self.rect.bottom = bottom
-    def load_images(self): #gets all frames to animate from for sprite
+    def load_images(self): #gets all frames to animate from for Mob
         self.idle_frames = [self.spritesheet.get_image(TILESIZE*2, 0, TILESIZE, TILESIZE),
                             self.spritesheet.get_image(TILESIZE*3, 0, TILESIZE, TILESIZE)]
 
-    def animate(self):
-            # use the time element to get now
-            now = pg.time.get_ticks()
-            if self.dir == "none":
-                if now - self.last_update > 350:
-                    self.last_update = now
-                    self.current_frame = (self.current_frame + 1) % len(self.idle_frames)
-                    bottom = self.rect.bottom
-                    self.image = self.idle_frames[self.current_frame]
-                    self.image.set_colorkey(BLACK)
-                    self.rect = self.image.get_rect()
-                    self.rect.bottom = bottom
-            elif self.dir == "right":
-                pass
-    def chase(self, obj):
-        if self.pos.x < obj.pos.x:
+    def animate(self): #animates the Mob sprite
+        # use the time element to get now
+        now = pg.time.get_ticks()
+        if now - self.last_update > 350:
+            self.last_update = now
+            self.current_frame = (self.current_frame + 1) % len(self.idle_frames)
+            bottom = self.rect.bottom
+            self.image = self.idle_frames[self.current_frame]
+            self.image.set_colorkey(BLACK)
+            self.rect = self.image.get_rect()
+            self.rect.bottom = bottom
+    def chase(self, obj): #chases Player sprite by measuring x and y values of Mob and Player
+        if self.pos.x < obj.pos.x: #if Mob x < Player x
             self.vel.x = self.speed
             self.dir = "right"
-        elif self.pos.x > obj.pos.x:
+        elif self.pos.x > obj.pos.x: #if Mob x > Player x
             self.vel.x = -self.speed
             self.dir = "left"
-        else:
+        else: #when they're touching
             self.vel.x = 0
 
-        if self.pos.y < obj.pos.y:
+        if self.pos.y < obj.pos.y: #if Mob y < Player y
             self.vel.y = self.speed
-        elif self.pos.y > obj.pos.y:
+        elif self.pos.y > obj.pos.y: #if Mob y > Player y
             self.vel.y = -self.speed
         else:
-            self.vel.y = 0
+            self.vel.y = 0 #when they're touching
 
-    def update(self):
+    def update(self): #updates position and animates between frames
         self.animate()
         if self.game.player:
             self.chase(self.game.player)
@@ -186,7 +175,7 @@ class Mob(Sprite):
         collide_with_walls(self, self.game.all_walls, 'y')
         self.rect.center = self.hit_rect.center
 
-class Coin(Sprite):
+class Coin(Sprite): #Coin sprite, no animate and update since we're not animating or moving position
     def __init__(self, game, x, y):
         self.groups = game.all_sprites, game.all_coins
         Sprite.__init__(self, self.groups)

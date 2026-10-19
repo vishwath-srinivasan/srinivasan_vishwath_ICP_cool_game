@@ -37,15 +37,16 @@ class Game: #initializing class Game
         self.game_dir = path.dirname(__file__)
         self.img_dir = path.join(self.game_dir, 'images')
         self.snd_dir = path.join(self.game_dir, 'audio') #gets directory from folder for audio and images
+        self.pickup_snd = pg.mixer.Sound(path.join(self.snd_dir, "coin.mp3")) #gets sound file from audio folder for coin collecting sound 
         self.map = Map(path.join(self.game_dir, map)) #loads map data
     def new(self):
         self.load_data('level1.txt') #loads the map format from level1.txt
         self.all_sprites = pg.sprite.Group()
         self.all_walls = pg.sprite.Group()
-        self.all_mobs = pg.sprite.Group() #makes groups for all types of objects
-        self.all_coins = pg.sprite.Group() 
+        self.all_mobs = pg.sprite.Group()
+        self.all_coins = pg.sprite.Group() #loads all the groups for all the types of objects
 
-        for row, tiles in enumerate(self.map.data): #uses enumeration to iterate through each letter to put on map
+        for row, tiles in enumerate(self.map.data): #uses enumeration to iterate through each letter to put respective thing on map
             for col, tile in enumerate(tiles):
                 if tile == "1":
                     Wall(self, col, row)
@@ -53,7 +54,7 @@ class Game: #initializing class Game
                     Mob(self, col, row)
                 if tile == "C":
                     Coin(self, col, row)
-        for row, tiles in enumerate(self.map.data): #saves Player for last
+        for row, tiles in enumerate(self.map.data): #saves Player for last, so it loads properly
             for col, tile in enumerate(tiles):
                 if tile == "P":
                     self.player = Player(self, col, row)
@@ -70,20 +71,21 @@ class Game: #initializing class Game
                 if self.playing:
                     self.playing = False
                 self.running = False
-    def draw_text(self, text, size, color, x, y):
+    def draw_text(self, text, size, color, x, y): #sets our text size, font, and everything, so we can put text
         font_name = pg.font.match_font('arial')
         font = pg.font.Font(font_name, size)
         text_surface = font.render(text, True, color)
         text_rect = text_surface.get_rect()
         text_rect.midtop = (x,y)
-        self.screen.blit(text_surface, text_rect)
+        self.screen.blit(text_surface, text_rect) #puts it on screen
     def draw(self):
         self.screen.fill(BGCOLOR) #tells the code which color to fill the background
         self.all_sprites.draw(self.screen) #everything will be drawn on the screen
-        self.draw_text("FPS: " + str(floor(1/self.dt)), 24, WHITE, WIDTH/2, HEIGHT/4)
+        self.draw_text("FPS: " + str(floor(1/self.dt)), 24, WHITE, WIDTH/2, HEIGHT/4) #FPS on screen
+        self.draw_text("Coins Collected: " + str(self.player.coins), 24, WHITE, WIDTH/2, HEIGHT/7) #coin counter on screen
         pg.display.flip()
     def update(self):
-        self.all_sprites.update() #updates the position of the block based on vx and vy
+        self.all_sprites.update() #updates the position of all sprites
 if __name__ == "__main__": #checks if we are in main.py and if we are in main.py, it will initialize Game
     g = Game()
 
