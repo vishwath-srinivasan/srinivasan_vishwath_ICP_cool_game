@@ -82,11 +82,12 @@ class Player(Sprite): #creates class Player
     def update(self):
         self.get_keys() #waits for input from games
         hits = pg.sprite.spritecollide(self, self.game.all_coins, True)
-        if hits:
+        if hits: #checks if Player hits a coin, it will update score and the coin counter, and it will play a coin collecting sound
             self.coins += 1
             self.game.pickup_snd.play()
+            self.game.score += 1
         self.animate() #does the animation
-        self.rect.center = self.pos
+        self.rect.center = self.pos #collides with walls using math
         self.pos += self.vel * self.game.dt
         self.hit_rect.centerx = self.pos.x
         collide_with_walls(self, self.game.all_walls, 'x')

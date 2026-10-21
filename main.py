@@ -33,12 +33,27 @@ class Game: #initializing class Game
         self.running = True
         self.playing = True
         self.clock = pg.time.Clock()
+        self.score = 0
     def load_data(self, map):
         self.game_dir = path.dirname(__file__)
+        self.game_save_file = path.join(self.game_dir, "highscore.txt")
         self.img_dir = path.join(self.game_dir, 'images')
         self.snd_dir = path.join(self.game_dir, 'audio') #gets directory from folder for audio and images
         self.pickup_snd = pg.mixer.Sound(path.join(self.snd_dir, "coin.mp3")) #gets sound file from audio folder for coin collecting sound 
         self.map = Map(path.join(self.game_dir, map)) #loads map data
+
+        try:
+            with open(self.game_save_file, "x", encoding="utf-8") as file:
+                file.write("hello world")
+        except FileExistsError:
+            print("File already exists")
+
+        with open(self.game_save_file, 'r') as file:
+            try:
+                self.high_score = int(file.read())
+            except:
+                self.high_score = 0
+                print("high score set to zero")
     def new(self):
         self.load_data('level1.txt') #loads the map format from level1.txt
         self.all_sprites = pg.sprite.Group()
@@ -67,7 +82,10 @@ class Game: #initializing class Game
             self.update() #updates the movement of the white block
     def events(self):
         for event in pg.event.get():
-            if event.type == pg.QUIT: #changes the self.running to False to quit the game when the X button is clicked to close the window and quit the while loop in the run method
+            if event.type == pg.QUIT:
+                if self.score > self.high_score: #checks if current game score is higher than the high_score. if it is, it will overwrite the high score. otherwise, it will stay the same.
+                    with open(path.join(self.game_dir, self.game_save_file), 'w') as f:
+                        f.write(str(self.score))
                 if self.playing:
                     self.playing = False
                 self.running = False
@@ -83,6 +101,8 @@ class Game: #initializing class Game
         self.all_sprites.draw(self.screen) #everything will be drawn on the screen
         self.draw_text("FPS: " + str(floor(1/self.dt)), 24, WHITE, WIDTH/2, HEIGHT/4) #FPS on screen
         self.draw_text("Coins Collected: " + str(self.player.coins), 24, WHITE, WIDTH/2, HEIGHT/7) #coin counter on screen
+        self.draw_text("Score: " + str(self.score), 24, WHITE, WIDTH/2, HEIGHT/6)
+        self.draw_text("High Score: " + str(self.high_score), 24, WHITE, WIDTH/2, HEIGHT/12)
         pg.display.flip()
     def update(self):
         self.all_sprites.update() #updates the position of all sprites
