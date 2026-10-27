@@ -60,6 +60,7 @@ class Game: #initializing class Game
         self.all_walls = pg.sprite.Group()
         self.all_mobs = pg.sprite.Group()
         self.all_coins = pg.sprite.Group() #loads all the groups for all the types of objects
+        self.all_particles = pg.sprite.Group()
 
         for row, tiles in enumerate(self.map.data): #uses enumeration to iterate through each letter to put respective thing on map
             for col, tile in enumerate(tiles):

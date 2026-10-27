@@ -4,6 +4,8 @@ from pygame.sprite import Sprite #imports Sprite class
 from os import path #imports path to let us use our system's directory system
 from utils import *
 
+from random import randint
+
 vec = pg.math.Vector2
 
 def collide_hit_rect(one, two):
@@ -83,6 +85,8 @@ class Player(Sprite): #creates class Player
         self.get_keys() #waits for input from games
         hits = pg.sprite.spritecollide(self, self.game.all_coins, True)
         if hits: #checks if Player hits a coin, it will update score and the coin counter, and it will play a coin collecting sound
+            for i in range(100):
+                Particle(self.game, hits[0].pos.x, hits[0].pos.y)
             self.coins += 1
             self.game.pickup_snd.play()
             self.game.score += 1
@@ -108,6 +112,27 @@ class Wall(Sprite):
         self.y = y * TILESIZE
         self.rect.x = self.x
         self.rect.y = self.y
+
+class Particle(Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites, game.all_particles
+        Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = pg.Surface((TILESIZE/8, TILESIZE/8))
+        self.image.fill(WHITE)
+        self.rect = self.image.get_rect()
+        self.vel = vec(randint(-180,180), randint(-180,180)) #sets velocity to any random direction
+        self.pos = vec(x,y) #position is the current (x,y) coordinate
+        self.speed = 5 #sets speed
+        self.countdown = Cooldown()
+        self.countdown.event_time = floor(pg.time.get_ticks()/1000)
+    def update(self):
+        self.countdown.ticking()
+        self.pos += self.vel * self.speed * self.game.dt
+        if self.countdown.delta > 1:
+            self.kill()
+        self.rect.x = self.pos.x
+        self.rect.y = self.pos.y
 
 class Mob(Sprite):
     def __init__(self, game, x, y): #method that initializes Sprite, only runs once
@@ -185,6 +210,7 @@ class Coin(Sprite): #Coin sprite, no animate and update since we're not animatin
         self.image = self.spritesheet.get_image(TILESIZE*4, 0, TILESIZE, TILESIZE)
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
+        self.pos = vec(x,y)
         self.x = x * TILESIZE
         self.y = y * TILESIZE
         self.rect.x = self.x
