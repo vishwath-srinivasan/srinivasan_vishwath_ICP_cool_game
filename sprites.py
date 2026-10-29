@@ -210,8 +210,6 @@ class Coin(Sprite): #Coin sprite, no animate and update since we're not animatin
         self.image = self.spritesheet.get_image(TILESIZE*4, 0, TILESIZE, TILESIZE)
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
-        self.pos = vec(x,y)
-        self.x = x * TILESIZE
-        self.y = y * TILESIZE
-        self.rect.x = self.x
-        self.rect.y = self.y 
+        self.pos = vec(x*TILESIZE,y*TILESIZE)
+        self.rect.x = self.pos.x
+        self.rect.y = self.pos.y 
