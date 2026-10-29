@@ -47,27 +47,35 @@ class Player(Sprite): #creates class Player
         self.rect = self.image.get_rect() #draws rectangle for character
         self.hit_rect = PLAYER_HIT_RECT
         self.vel = vec(0,0)
+        self.acc = vec(0,0)
         self.pos = vec(x*TILESIZE,y*TILESIZE)
+        self.jumping = False
         self.last_update = 0
         self.current_frame = 0
         self.coins = 0
     def get_keys(self): #gets input to move Player
-        self.vel = vec(0,0)
+        # self.vel = vec(0,0)
         keys = pg.key.get_pressed()
         if keys[pg.K_LEFT] or keys[pg.K_a]: #checks if left arrow or "a" key is pressed
-            self.vel.x = -PLAYER_SPEED #makes player_speed negative on the x axis
+            # self.vel.x = -PLAYER_SPEED #makes player_speed negative on the x axis
+            self.acc.x = -PLAYER_SPEED #makes player_speed negative on the x axis
             #self.vx = -PLAYER_SPEED #makes player_speed negative on the x axis
         if keys[pg.K_RIGHT] or keys[pg.K_d]: #checks if right arrow or "d" key is pressed
-            self.vel.x = PLAYER_SPEED #makes player_speed positive on x_axis
+            # self.vel.x = PLAYER_SPEED #makes player_speed positive on x_axis
+            self.acc.x = PLAYER_SPEED #makes player_speed positive on x_axis
             #self.vx = PLAYER_SPEED #makes player_speed positive on x_axis
         if keys[pg.K_UP] or keys[pg.K_w]: #checks if up arrow or "w" key is pressed
-            self.vel.y = -PLAYER_SPEED #makes player_speed negative on y_axis since top left is (0,0)
+            # self.vel.y = -PLAYER_SPEED #makes player_speed negative on y_axis since top left is (0,0)
+            self.acc.y = -PLAYER_SPEED #makes player_speed negative on y_axis since top left is (0,0)
             #self.vy = -PLAYER_SPEED #makes player_speed negative on y_axis since top left is (0,0)
         if keys[pg.K_DOWN] or keys[pg.K_s]: #checks if down arrow or "s" key is pressed
-            self.vel.y = PLAYER_SPEED #makes player_speed positive on y_axis
+            # self.vel.y = PLAYER_SPEED #makes player_speed positive on y_axis
+            self.acc.y = PLAYER_SPEED #makes player_speed positive on y_axis
             #self.vy = PLAYER_SPEED #makes player_speed positive on y_axis
-        if self.vel.x != 0 and self.vel.y != 0:
-            self.vel *= 0.7071
+        # if self.vel.x != 0 and self.vel.y != 0:
+        #     self.vel *= 0.7071
+    def jump(self):
+        pass
     def animate(self):
         now = pg.time.get_ticks()
         if now - self.last_update > 350: #checks if time between last update is greater than 350 ms
@@ -82,6 +90,12 @@ class Player(Sprite): #creates class Player
                             self.spritesheet.get_image(TILESIZE, 0, TILESIZE, TILESIZE)]
 
     def update(self):
+        self.acc = vec(0,1)
+        self.acc.x += self.vel.x * PLAYER_FRIC
+        self.acc.y += self.vel.y * PLAYER_FRIC
+        self.vel += self.acc
+        self.rect.center = self.pos #collides with walls using math
+        self.pos += self.vel + 0.5 * self.acc
         self.get_keys() #waits for input from games
         hits = pg.sprite.spritecollide(self, self.game.all_coins, True)
         if hits: #checks if Player hits a coin, it will update score and the coin counter, and it will play a coin collecting sound
@@ -91,8 +105,7 @@ class Player(Sprite): #creates class Player
             self.game.pickup_snd.play()
             self.game.score += 1
         self.animate() #does the animation
-        self.rect.center = self.pos #collides with walls using math
-        self.pos += self.vel * self.game.dt
+        # self.pos += self.vel * self.game.dt
         self.hit_rect.centerx = self.pos.x
         collide_with_walls(self, self.game.all_walls, 'x')
         self.hit_rect.centery = self.pos.y

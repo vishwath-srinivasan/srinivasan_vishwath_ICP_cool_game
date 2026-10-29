@@ -14,8 +14,9 @@ RED = (255, 0, 0)
 BLACK = (0, 0, 0)
 
 #player settings
-PLAYER_SPEED = 300
+PLAYER_SPEED = 1
 PLAYER_HIT_RECT = pg.Rect(0, 0, TILESIZE-5, TILESIZE-5)
+PLAYER_FRIC = -0.1
 
 #mob settings
 MOB_HIT_RECT = pg.Rect(0, 0, TILESIZE-5, TILESIZE-5)
