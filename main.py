@@ -22,6 +22,7 @@ from os import path
 from settings import * #imports everything from settings.py
 from sprites import * #imports everything from sprites.py
 from utils import *
+from math import floor
 
 class Game: #initializing class Game
     def __init__(self):
@@ -40,6 +41,7 @@ class Game: #initializing class Game
         self.img_dir = path.join(self.game_dir, 'images')
         self.snd_dir = path.join(self.game_dir, 'audio') #gets directory from folder for audio and images
         self.pickup_snd = pg.mixer.Sound(path.join(self.snd_dir, "coin.mp3")) #gets sound file from audio folder for coin collecting sound 
+        self.jump_snd = pg.mixer.Sound(path.join(self.snd_dir, "Jump33.wav")) #gets jump sound file from audio folder for when user jumps
         self.map = Map(path.join(self.game_dir, map)) #loads map data
 
         try:

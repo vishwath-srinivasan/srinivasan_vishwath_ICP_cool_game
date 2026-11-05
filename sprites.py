@@ -53,6 +53,8 @@ class Player(Sprite): #creates class Player
         self.last_update = 0
         self.current_frame = 0
         self.coins = 0
+        self.cofric = -0.1
+        self.jumping = False
     def get_keys(self): #gets input to move Player
         # self.vel = vec(0,0)
         keys = pg.key.get_pressed()
@@ -74,11 +76,24 @@ class Player(Sprite): #creates class Player
             #self.vy = PLAYER_SPEED #makes player_speed positive on y_axis
         # if self.vel.x != 0 and self.vel.y != 0:
         #     self.vel *= 0.7071
+        if keys[pg.K_SPACE]: #monitors space bar input
+            self.jump() #Player sprite jumps when space bar is clicked
     def jump(self):
-        pass
+        self.rect.y += 2
+        hits = pg.sprite.spritecollide(self, self.game.all_walls, False)
+        self.rect.y += 2 #moves character up 2 pixels, checks for wall collision so it doesn't faze through a wall, then goes back down
+        if hits and not self.jumping:
+            self.game.jump_snd.play()
+            self.jumping = True
+            self.vel.y = -PLAYER_JUMP #sets it to -50 because y-axis is inverted
+    def is_jumping(self):
+        if self.vel.y > 0: #checks for when Player sprite is going back down
+            hits = pg.sprite.spritecollide(self, self.game.all_walls, False)
+            if hits:
+                self.jumping = False #if going back down, Player is not jumping --> jumping = False
     def animate(self):
         now = pg.time.get_ticks()
-        if now - self.last_update > 350: #checks if time between last update is greater than 350 ms
+        if now - self.last_update > 100: #checks if time between last update is greater than 350 ms
             self.last_update = now
             self.current_frame = (self.current_frame + 1) % len(self.idle_frames) #updates to next frame then when at last frame modulus remainder will set it back to 0
             bottom = self.rect.bottom
@@ -90,11 +105,14 @@ class Player(Sprite): #creates class Player
                             self.spritesheet.get_image(TILESIZE, 0, TILESIZE, TILESIZE)]
 
     def update(self):
-        self.acc = vec(0,1)
+        self.acc = vec(0,PLAYER_GRAV)
         self.acc.x += self.vel.x * PLAYER_FRIC
         self.acc.y += self.vel.y * PLAYER_FRIC
         self.vel += self.acc
-        self.rect.center = self.pos #collides with walls using math
+        if abs(self.vel.x) < 0.1:
+            self.vel.x = 0
+        if abs(self.vel.y) < 0.1:
+            self.vel.y = 0
         self.pos += self.vel + 0.5 * self.acc
         self.get_keys() #waits for input from games
         hits = pg.sprite.spritecollide(self, self.game.all_coins, True)
@@ -104,12 +122,12 @@ class Player(Sprite): #creates class Player
             self.coins += 1
             self.game.pickup_snd.play()
             self.game.score += 1
-        self.animate() #does the animation
+        self.is_jumping()
         # self.pos += self.vel * self.game.dt
-        self.hit_rect.centerx = self.pos.x
         collide_with_walls(self, self.game.all_walls, 'x')
         self.hit_rect.centery = self.pos.y
-        collide_with_walls(self, self.game.all_walls, 'y')
+        if collide_with_walls(self, self.game.all_walls, 'y'):
+            self.jumping = False
         self.rect.center = self.hit_rect.center
 
         
