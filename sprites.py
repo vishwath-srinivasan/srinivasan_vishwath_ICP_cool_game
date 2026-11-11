@@ -54,25 +54,24 @@ class Player(Sprite): #creates class Player
         self.current_frame = 0
         self.coins = 0
         self.cofric = -0.1
-        self.jumping = False
     def get_keys(self): #gets input to move Player
         # self.vel = vec(0,0)
         keys = pg.key.get_pressed()
         if keys[pg.K_LEFT] or keys[pg.K_a]: #checks if left arrow or "a" key is pressed
             # self.vel.x = -PLAYER_SPEED #makes player_speed negative on the x axis
-            self.acc.x = -PLAYER_SPEED #makes player_speed negative on the x axis
+            self.acc.x = -PLAYER_ACC #makes player_speed negative on the x axis
             #self.vx = -PLAYER_SPEED #makes player_speed negative on the x axis
         if keys[pg.K_RIGHT] or keys[pg.K_d]: #checks if right arrow or "d" key is pressed
             # self.vel.x = PLAYER_SPEED #makes player_speed positive on x_axis
-            self.acc.x = PLAYER_SPEED #makes player_speed positive on x_axis
+            self.acc.x = PLAYER_ACC #makes player_speed positive on x_axis
             #self.vx = PLAYER_SPEED #makes player_speed positive on x_axis
         if keys[pg.K_UP] or keys[pg.K_w]: #checks if up arrow or "w" key is pressed
             # self.vel.y = -PLAYER_SPEED #makes player_speed negative on y_axis since top left is (0,0)
-            self.acc.y = -PLAYER_SPEED #makes player_speed negative on y_axis since top left is (0,0)
+            self.acc.y = -PLAYER_ACC #makes player_speed negative on y_axis since top left is (0,0)
             #self.vy = -PLAYER_SPEED #makes player_speed negative on y_axis since top left is (0,0)
         if keys[pg.K_DOWN] or keys[pg.K_s]: #checks if down arrow or "s" key is pressed
             # self.vel.y = PLAYER_SPEED #makes player_speed positive on y_axis
-            self.acc.y = PLAYER_SPEED #makes player_speed positive on y_axis
+            self.acc.y = PLAYER_ACC #makes player_speed positive on y_axis
             #self.vy = PLAYER_SPEED #makes player_speed positive on y_axis
         # if self.vel.x != 0 and self.vel.y != 0:
         #     self.vel *= 0.7071
@@ -80,14 +79,14 @@ class Player(Sprite): #creates class Player
             self.jump() #Player sprite jumps when space bar is clicked
     def jump(self):
         self.rect.y += 2
-        hits = pg.sprite.spritecollide(self, self.game.all_walls, False)
-        self.rect.y += 2 #moves character up 2 pixels, checks for wall collision so it doesn't faze through a wall, then goes back down
+        hits = pg.sprite.spritecollide(self, self.game.all_walls, False) #makes sure it still has wall collision to not faze through wall
+        self.rect.y -= 2 #moves character up 2 pixels, checks for wall collision so it doesn't faze through a wall, then goes back down
         if hits and not self.jumping:
             self.game.jump_snd.play()
             self.jumping = True
             self.vel.y = -PLAYER_JUMP #sets it to -50 because y-axis is inverted
     def is_jumping(self):
-        if self.vel.y > 0: #checks for when Player sprite is going back down
+        if self.vel.y > 0: #checks for when Player sprite is going back down through velocity
             hits = pg.sprite.spritecollide(self, self.game.all_walls, False)
             if hits:
                 self.jumping = False #if going back down, Player is not jumping --> jumping = False
@@ -105,7 +104,10 @@ class Player(Sprite): #creates class Player
                             self.spritesheet.get_image(TILESIZE, 0, TILESIZE, TILESIZE)]
 
     def update(self):
+        self.animate()
+        self.is_jumping()
         self.acc = vec(0,PLAYER_GRAV)
+        self.get_keys() #waits for input from games
         self.acc.x += self.vel.x * PLAYER_FRIC
         self.acc.y += self.vel.y * PLAYER_FRIC
         self.vel += self.acc
@@ -114,7 +116,6 @@ class Player(Sprite): #creates class Player
         if abs(self.vel.y) < 0.1:
             self.vel.y = 0
         self.pos += self.vel + 0.5 * self.acc
-        self.get_keys() #waits for input from games
         hits = pg.sprite.spritecollide(self, self.game.all_coins, True)
         if hits: #checks if Player hits a coin, it will update score and the coin counter, and it will play a coin collecting sound
             for i in range(100):
@@ -122,8 +123,8 @@ class Player(Sprite): #creates class Player
             self.coins += 1
             self.game.pickup_snd.play()
             self.game.score += 1
-        self.is_jumping()
         # self.pos += self.vel * self.game.dt
+        self.hit_rect.centerx = self.pos.x
         collide_with_walls(self, self.game.all_walls, 'x')
         self.hit_rect.centery = self.pos.y
         if collide_with_walls(self, self.game.all_walls, 'y'):
