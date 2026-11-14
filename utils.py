@@ -16,13 +16,11 @@ class Map:
 
 class Spritesheet:
     def __init__(self, filename):
-        self.spritesheet = pg.image.load(filename).convert()
+        self.spritesheet = pg.image.load(filename).convert_alpha() #convert_alpha() works best for transparent images
 
     def get_image(self, x, y, width, height):
-        image = pg.Surface((width, height))
-        image.blit(self.spritesheet, (0,0), (x,y, width, height))
-        new_image = pg.transform.scale(image, (width, height))
-        image = new_image
+        image = pg.Surface((width, height), pg.SRCALPHA) #enables pixel transparency
+        image.blit(self.spritesheet, (0,0), (x,y, width, height)) #sets the new image
         return image
 
 class Cooldown:

@@ -166,72 +166,19 @@ class Particle(Sprite):
         self.rect.x = self.pos.x
         self.rect.y = self.pos.y
 
-class Mob(Sprite):
+class Hoop(Sprite):
     def __init__(self, game, x, y): #method that initializes Sprite, only runs once
-        self.groups = game.all_sprites, game.all_mobs #gets all of the sprite images
+        self.groups = game.all_sprites, game.all_hoops #gets all of the sprite images
         Sprite.__init__(self, self.groups) #initializes Sprite
         self.game = game
-        self.spritesheet = Spritesheet(path.join(self.game.img_dir, "sprite_sheet.png"))
-        self.image = self.spritesheet.get_image(0, 0, TILESIZE, TILESIZE)
-        self.image.set_colorkey(BLACK)
-        self.load_images()
-        self.image = pg.Surface((TILESIZE, TILESIZE)) #gets character pixel size from settings.py
-        self.rect = self.image.get_rect() #draws rectangle for character
-        self.speed = 100 #sets speed
-        self.vel = vec(0, 0)
+        self.spritesheet = Spritesheet(path.join(self.game.img_dir, "sprite_sheet.png")) #loads image for Hoop
+        self.image = self.spritesheet.get_image(0, 0, 200, 600)
+        self.image = pg.transform.scale(self.image, (100, 300)) #scales the image, so it will fit in the game window
+        if x >= len(game.map.data[0]) / 2: #checks if hoop will be placed on the right side, so it can mirror the hoop
+            self.image = pg.transform.flip(self.image, True, False) #flips image across the vertical axis
+        self.rect = self.image.get_rect() #creates the rectangle based on the size of the final image
         self.pos = vec(x*TILESIZE, y*TILESIZE)
-        self.x = x * TILESIZE
-        self.y = y * TILESIZE
-        self.rect.x = self.x
-        self.rect.y = self.y
-        self.dir = "none"
-        self.last_update = 0
-        self.current_frame = 0
-        self.hit_rect = MOB_HIT_RECT #hitbox
-
-    def load_images(self): #gets all frames to animate from for Mob
-        self.idle_frames = [self.spritesheet.get_image(TILESIZE*2, 0, TILESIZE, TILESIZE),
-                            self.spritesheet.get_image(TILESIZE*3, 0, TILESIZE, TILESIZE)]
-
-    def animate(self): #animates the Mob sprite
-        # use the time element to get now
-        now = pg.time.get_ticks()
-        if now - self.last_update > 350:
-            self.last_update = now
-            self.current_frame = (self.current_frame + 1) % len(self.idle_frames)
-            bottom = self.rect.bottom
-            self.image = self.idle_frames[self.current_frame]
-            self.image.set_colorkey(BLACK)
-            self.rect = self.image.get_rect()
-            self.rect.bottom = bottom
-    def chase(self, obj): #chases Player sprite by measuring x and y values of Mob and Player
-        if self.pos.x < obj.pos.x: #if Mob x < Player x
-            self.vel.x = self.speed
-            self.dir = "right"
-        elif self.pos.x > obj.pos.x: #if Mob x > Player x
-            self.vel.x = -self.speed
-            self.dir = "left"
-        else: #when they're touching
-            self.vel.x = 0
-
-        if self.pos.y < obj.pos.y: #if Mob y < Player y
-            self.vel.y = self.speed
-        elif self.pos.y > obj.pos.y: #if Mob y > Player y
-            self.vel.y = -self.speed
-        else:
-            self.vel.y = 0 #when they're touching
-
-    def update(self): #updates position and animates between frames
-        self.animate()
-        if self.game.player:
-            self.chase(self.game.player)
-        self.rect.center = self.pos
-        self.pos += self.vel * self.game.dt
-        self.hit_rect.centerx = self.pos.x
-        collide_with_walls(self, self.game.all_walls, 'x')
-        self.hit_rect.centery = self.pos.y
-        collide_with_walls(self, self.game.all_walls, 'y')
-        self.rect.center = self.hit_rect.center
+        self.rect.midbottom = (x*TILESIZE + TILESIZE/2, y*TILESIZE) #places hoop on top of "H" tile in level1.txt
 
 class Coin(Sprite): #Coin sprite, no animate and update since we're not animating or moving position
     def __init__(self, game, x, y):

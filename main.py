@@ -60,7 +60,7 @@ class Game: #initializing class Game
         self.load_data('level1.txt') #loads the map format from level1.txt
         self.all_sprites = pg.sprite.Group()
         self.all_walls = pg.sprite.Group()
-        self.all_mobs = pg.sprite.Group()
+        self.all_hoops = pg.sprite.Group()
         self.all_coins = pg.sprite.Group() #loads all the groups for all the types of objects
         self.all_particles = pg.sprite.Group()
 
@@ -68,8 +68,8 @@ class Game: #initializing class Game
             for col, tile in enumerate(tiles):
                 if tile == "1":
                     Wall(self, col, row)
-                if tile == "M":
-                    Mob(self, col, row)
+                if tile == "H":
+                    Hoop(self, col, row)
                 if tile == "C":
                     Coin(self, col, row)
         for row, tiles in enumerate(self.map.data): #saves Player for last, so it loads properly
