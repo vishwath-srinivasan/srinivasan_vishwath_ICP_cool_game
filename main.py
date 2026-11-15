@@ -63,6 +63,7 @@ class Game: #initializing class Game
         self.all_hoops = pg.sprite.Group()
         self.all_coins = pg.sprite.Group() #loads all the groups for all the types of objects
         self.all_particles = pg.sprite.Group()
+        self.all_players = pg.sprite.Group()
 
         for row, tiles in enumerate(self.map.data): #uses enumeration to iterate through each letter to put respective thing on map
             for col, tile in enumerate(tiles):
@@ -70,12 +71,16 @@ class Game: #initializing class Game
                     Wall(self, col, row)
                 if tile == "H":
                     Hoop(self, col, row)
-                if tile == "C":
-                    Coin(self, col, row)
+                    Wall(self, col, row) #to prevent hoop from falling underground
+                #if tile == "C":
+                    #Coin(self, col, row)
         for row, tiles in enumerate(self.map.data): #saves Player for last, so it loads properly
             for col, tile in enumerate(tiles):
                 if tile == "P":
-                    self.player = Player(self, col, row)
+                    self.player1 = Player(self, col, row, "player1_spritesheet.png", RED_CONTROLS)
+                if tile == "B":
+                    self.player2 = Player(self, col, row, "player2_spritesheet.png", BLUE_CONTROLS)
+        self.ball = Ball(self, self.player1) #red player starts with the ball
     def run(self):
         self.playing = True
         while self.playing: #will always be True until user exits game where self.running will become False
@@ -92,6 +97,10 @@ class Game: #initializing class Game
                 if self.playing:
                     self.playing = False
                 self.running = False
+            if event.type == pg.KEYDOWN:
+                for player in self.all_players:
+                    if event.key == player.controls["shoot"]:
+                        player.shoot()
     def draw_text(self, text, size, color, x, y): #sets our text size, font, and everything, so we can put text
         font_name = pg.font.match_font('arial')
         font = pg.font.Font(font_name, size)
@@ -103,10 +112,9 @@ class Game: #initializing class Game
         self.screen.fill(BGCOLOR) #tells the code which color to fill the background
         self.all_sprites.draw(self.screen) #everything will be drawn on the screen
         self.draw_text("FPS: " + str(floor(1/self.dt)), 24, WHITE, WIDTH/2, HEIGHT/4) #FPS on screen
-        self.draw_text("Coins Collected: " + str(self.player.coins), 24, WHITE, WIDTH/2, HEIGHT/7) #coin counter on screen
         self.draw_text("Score: " + str(self.score), 24, WHITE, WIDTH/2, HEIGHT/6)
         self.draw_text("High Score: " + str(self.high_score), 24, WHITE, WIDTH/2, HEIGHT/12)
-        pg.display.flip()
+        pg.display.flip() #shows everything that was just drawn
     def update(self):
         self.all_sprites.update() #updates the position of all sprites
 if __name__ == "__main__": #checks if we are in main.py and if we are in main.py, it will initialize Game
