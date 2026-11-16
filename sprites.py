@@ -97,7 +97,7 @@ class Player(Sprite): #creates class Player
             self.jump_time = pg.time.get_ticks() #starts tracking jump time
             self.vel.y = -PLAYER_JUMP #y velocity goes up
     def is_jumping(self):
-        if self.vel.y > 0 and self.on_ground(): 
+        if self.vel.y >= 0 and self.on_ground(): 
             self.jumping = False #if going back down, Player is not jumping --> jumping = False
     def shoot(self):
         if self.game.ball.owner is self: #if you're shooting, it will check if you have the ball or not
@@ -155,7 +155,8 @@ class Ball(Sprite):
         Sprite.__init__(self, self.groups)  
         self.game = game
         self.spritesheet = Spritesheet(path.join(self.game.img_dir, "ball.png"))
-        self.image = self.spritesheet.get_image(0, 0, 13, 13)
+        self.image = self.spritesheet.get_image(0, 0, 18, 18)
+        self.image = pg.transform.scale(self.image, (BALL_SIZE, BALL_SIZE)) #changing the scale of the image to make the ball bigger
         self.rect = self.image.get_rect()
         self.pos = vec(0,0)
         self.vel = vec(0,0) 
@@ -251,9 +252,24 @@ class Hoop(Sprite):
         self.game = game
         self.spritesheet = Spritesheet(path.join(self.game.img_dir, "hoop_spritesheet.png")) #loads image for Hoop
         self.image = self.spritesheet.get_image(0, 0, 200, 600)
-        self.image = pg.transform.scale(self.image, (100, 300)) #scales the image, so it will fit in the game window
-        if x >= len(game.map.data[0]) / 2: #checks if hoop will be placed on the right side, so it can mirror the hoop
+        self.image = pg.transform.scale(self.image, (HOOP_WIDTH, HOOP_HEIGHT)) #scales the image, so it will fit in the game window
+        flipped = x >= len(game.map.data[0]) /2 
+        if flipped: #checks if hoop will be placed on the right side, so it can mirror the hoop
             self.image = pg.transform.flip(self.image, True, False) #flips image across the vertical axis
         self.rect = self.image.get_rect() #creates the rectangle based on the size of the final image
         self.pos = vec(x*TILESIZE, y*TILESIZE)
         self.rect.midbottom = (x*TILESIZE + TILESIZE/2, y*TILESIZE) #places hoop on top of "H" tile in level1.txt
+        k = HOOP_WIDTH / 100
+        scaled_backboard = []
+        for value in HOOP_BACKBOARD:
+            scaled_backboard.append(value * k) #scaling the backboard
+        bx, by, bw, bh = scaled_backboard
+        scaled_rim = []
+        for value in HOOP_RIM: #scaling the rim (mainly for collision)
+            scaled_rim.append(value * k)
+        rx, ry = scaled_rim
+        if flipped:
+            bx = HOOP_WIDTH - bx - bw
+            rx = HOOP_WIDTH - rx
+        self.backboard = pg.Rect(round(self.rect.left + bx), round(self.rect.top + by), round(bw), round(bh))
+        self.rim = vec(self.rect.left + rx, self.rect.top + ry)

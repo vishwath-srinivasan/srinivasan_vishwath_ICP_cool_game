@@ -23,8 +23,11 @@ PLAYER_FRIC = -0.1
 PLAYER_JUMP = 50
 
 #hoop settings
-HOOP_WIDTH = 100
-HOOP_HEIGHT = 300
+HOOP_SCALE = 0.75 
+HOOP_WIDTH = int(200 * HOOP_SCALE)
+HOOP_HEIGHT = int(600 * HOOP_SCALE)
+HOOP_BACKBOARD = (44, 17, 20, 58)
+HOOP_RIM = (76, 76)
 
 #player controls
 RED_CONTROLS = {"left": pg.K_a, "right": pg.K_d, "jump": pg.K_w, "shoot": pg.K_f} #dictionary for player red controls
@@ -32,9 +35,10 @@ BLUE_CONTROLS = {"left": pg.K_LEFT, "right": pg.K_RIGHT, "jump": pg.K_UP, "shoot
 PLAYER_FEET_GAP = 5 #removes 5 pixels between shoes and floor
 
 #ball settings
+BALL_SIZE = 27
 BALL_GRAV = 3
 BALL_BOUNCE = 0.7
 BALL_SHOT = (22,-36) #speed of ball in (x,y) when shot
-BALL_MAX_SPEED = 40
+BALL_MAX_SPEED = 55
 BALL_PICKUP_DELAY = 500 #500 ms delay before picking up ball to make it fairer
 BALL_ANCHORS = [(39, 55), (41, 60), (42, 63), (41, 60), (42, 63), (40, 54), (37, 9), (39, 39)] #positions of ball to anchor onto player when someone has possession
