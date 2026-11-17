@@ -7,14 +7,13 @@ Why is it capitalized?
 What is init?
 What is pass?
 
-Data types: boolean, JSON, strings
+Game Name: Ballistic Basketball
 
-Input (events): Keyboard input, mouse click, voice,
-power button, eye tracking, camera, gyroscoping, electrostatic, location, volume, microphone
-
-Process: cursor position, position of player, score, enemy position, velocity, aim in FPS, 
-
-Output: graphics - things are drawn, sound - jump, power up, wakling, haptics
+Design Goals: basketball game that can shoot with user input, graphic output, and follows regular basketball rules to a certain extent
+Goal of Game: Score more points than your opponents while utilizing powerups to your advantage
+Rules: Stay within boundaries, you can only use powerups if you have it, regular basketball rules, no harrasing opponents
+Feedback: When you score a basket, particles will come and score will update. When you click keys, player's position will adjust accordingly to the assigned input
+Freedom: You can score however you want as long as you comply with the rules of Ballistic Basketball
 '''
 
 import pygame as pg #importing as pg to make typing pygame easier
