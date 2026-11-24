@@ -46,3 +46,7 @@ BALL_ANCHORS = [(39, 55), (41, 60), (42, 63), (41, 60), (42, 63), (40, 54), (37,
 #backboard settings
 BACKBOARD_BOUNCE = 0.65 #how much speed ball keeps after bouncing off
 BACKBOARD_GRIP = 0.9 #speed kept when ball is sliding off of backboard
+
+#scoring settings
+HOOP_SCORE_HALF = 8 #pixels distance of how far ball has to be from rim to score
+THREE_POINT_DISTANCE = 300 #pixel distance from hoop from 3 point line

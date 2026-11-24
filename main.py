@@ -111,8 +111,8 @@ class Game: #initializing class Game
         self.screen.fill(BGCOLOR) #tells the code which color to fill the background
         self.all_sprites.draw(self.screen) #everything will be drawn on the screen
         self.draw_text("FPS: " + str(floor(1/self.dt)), 24, WHITE, WIDTH/2, HEIGHT/4) #FPS on screen
-        self.draw_text("Score: " + str(self.score), 24, WHITE, WIDTH/2, HEIGHT/6)
-        self.draw_text("High Score: " + str(self.high_score), 24, WHITE, WIDTH/2, HEIGHT/12)
+        self.draw_text("Red: " + str(self.player1.points), 24, WHITE, WIDTH/2 - 150, HEIGHT/6)
+        self.draw_text("Blue: " + str(self.player2.points), 24, WHITE, WIDTH/2 + 150, HEIGHT/6)
         pg.display.flip() #shows everything that was just drawn
     def update(self):
         self.all_sprites.update() #updates the position of all sprites

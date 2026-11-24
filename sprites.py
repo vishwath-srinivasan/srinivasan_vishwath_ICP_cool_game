@@ -57,6 +57,7 @@ class Player(Sprite): #creates class Player
         self.last_update = 0
         self.current_frame = 0
         self.coins = 0
+        self.points = 0
         self.cofric = -0.1
     def load_images(self): #gets all frames to animate from for sprite
         self.frames_r = [self.spritesheet.get_image(0, 0, 50, 150), #idle
@@ -163,6 +164,8 @@ class Ball(Sprite):
         self.owner = owner
         self.release_time = 0
         self.follow_owner()
+        self.shooter = None
+        self.shot_x = 0
     def follow_owner(self): #ball stays attached to player
         bx, by = self.owner.ball_anchor
         self.rect.center = (self.owner.rect.left + bx, self.owner.rect.top + by)
@@ -173,6 +176,8 @@ class Ball(Sprite):
         else:
             direction = 1
         self.vel = vec(direction * BALL_SHOT[0], BALL_SHOT[1])
+        self.shooter = self.owner #shooter is person with the ball
+        self.shot_x = self.owner.hit_rect.centerx #tracks where shot came from
         self.owner = None
         self.release_time = pg.time.get_ticks()
     def hit_backboard(self):
@@ -198,7 +203,7 @@ class Ball(Sprite):
                 elif shallowest == from_top:
                     self.rect.bottom = board.top
                     if self.vel.y > 0: #if moving down into the board
-                        self.rect.bottom = -BACKBOARD_BOUNCE
+                        self.rect.bottom *= -BACKBOARD_BOUNCE
                     self.vel.x *= BACKBOARD_GRIP
                 else:
                     self.rect.top = board.bottom
@@ -206,10 +211,24 @@ class Ball(Sprite):
                         self.vel.y *= -BACKBOARD_BOUNCE
                     self.vel.x *= BACKBOARD_GRIP
                 self.pos = vec(self.rect.center) #avoids rect confusion within the game, so nothing gets affected
+    def check_score(self, old_y):
+        if self.shooter is None:
+            return
+        for hoop in self.game.all_hoops:
+            crossed = old_y < hoop.rim.y and self.rect.centery >= hoop.rim.y #checks if ball went from above rim line to below it
+            inside = abs(self.rect.centerx - hoop.rim.x) <= hoop.score_range #checks if ball was close enough to middle of rim
+            if crossed and inside and self.rect.centery > old_y:
+                if abs(self.shot_x - hoop.rim.x) >= THREE_POINT_DISTANCE: #checks if shot came from beyond three point distance
+                    points = 3
+                else:
+                    points = 2
+                self.shooter.points += points
+                self.shooter = None
     def update(self):
         if self.owner: #if it's anchored
             self.follow_owner()
             return
+        old_y = self.rect.centery
         self.vel.y = min(self.vel.y + BALL_GRAV, BALL_MAX_SPEED)
         self.vel.x *= 0.99
         self.pos.x += self.vel.x
@@ -236,10 +255,12 @@ class Ball(Sprite):
                 self.vel.y = 0
                 self.vel.x *= 0.8
         self.hit_backboard() #bounces off backboard if in contact
+        self.check_score(old_y) #checks if ball dropped through the rim
         if pg.time.get_ticks() - self.release_time > BALL_PICKUP_DELAY: #player can pick up loose ball if pickup delay has passed
             for player in self.game.all_players:
                 if player.rect.inflate(-14, 0).colliderect(self.rect):
                     self.owner = player
+                    self.shooter = None
                     self.vel = vec(0,0)
                     break
 
@@ -305,3 +326,8 @@ class Hoop(Sprite):
             rx = HOOP_WIDTH - rx
         self.backboard = pg.Rect(round(self.rect.left + bx), round(self.rect.top + by), round(bw), round(bh))
         self.rim = vec(self.rect.left + rx, self.rect.top + ry)
+        self.score_range = HOOP_SCORE_HALF * k
+        if flipped:
+            self.three_line_x = self.rim.x - THREE_POINT_DISTANCE
+        else:
+            self.three_line_x = self.rim.x + THREE_POINT_DISTANCE
