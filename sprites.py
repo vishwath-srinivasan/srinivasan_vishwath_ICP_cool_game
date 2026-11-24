@@ -3,7 +3,7 @@ from settings import * #imports everything from settings.py
 from pygame.sprite import Sprite #imports Sprite class
 from os import path #imports path to let us use our system's directory system
 from utils import *
-
+from math import sqrt
 from random import randint
 
 vec = pg.math.Vector2
@@ -175,6 +175,37 @@ class Ball(Sprite):
         self.vel = vec(direction * BALL_SHOT[0], BALL_SHOT[1])
         self.owner = None
         self.release_time = pg.time.get_ticks()
+    def hit_backboard(self):
+        for hoop in self.game.all_hoops:
+            board = hoop.backboard #creates a hitbox for every backboard of every hoop
+            if self.rect.colliderect(board):
+                #how far ball has sunk into each direction of the board
+                from_left = self.rect.right - board.left
+                from_right = board.right - self.rect.left
+                from_top = self.rect.bottom - board.top
+                from_bottom = board.bottom - self.rect.top
+                shallowest = min(from_left, from_right, from_top, from_bottom)
+                if shallowest == from_left:
+                    self.rect.right = board.left
+                    if self.vel.x > 0: #if moving right into the board
+                        self.vel.x *= -BACKBOARD_BOUNCE #change direction
+                    self.vel.y *= BACKBOARD_GRIP
+                elif shallowest == from_right:
+                    self.rect.left = board.right
+                    if self.vel.x < 0: #if moving left into the board
+                        self.vel.x *= -BACKBOARD_BOUNCE #change direction
+                    self.vel.y *= BACKBOARD_GRIP
+                elif shallowest == from_top:
+                    self.rect.bottom = board.top
+                    if self.vel.y > 0: #if moving down into the board
+                        self.rect.bottom = -BACKBOARD_BOUNCE
+                    self.vel.x *= BACKBOARD_GRIP
+                else:
+                    self.rect.top = board.bottom
+                    if self.vel.y < 0: #if moving up into the board
+                        self.vel.y *= -BACKBOARD_BOUNCE
+                    self.vel.x *= BACKBOARD_GRIP
+                self.pos = vec(self.rect.center) #avoids rect confusion within the game, so nothing gets affected
     def update(self):
         if self.owner: #if it's anchored
             self.follow_owner()
@@ -204,6 +235,7 @@ class Ball(Sprite):
             if abs(self.vel.y) < 6: #if y velocity is too small to bounce, it will stop bouncing
                 self.vel.y = 0
                 self.vel.x *= 0.8
+        self.hit_backboard() #bounces off backboard if in contact
         if pg.time.get_ticks() - self.release_time > BALL_PICKUP_DELAY: #player can pick up loose ball if pickup delay has passed
             for player in self.game.all_players:
                 if player.rect.inflate(-14, 0).colliderect(self.rect):

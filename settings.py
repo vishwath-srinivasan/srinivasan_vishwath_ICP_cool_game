@@ -42,3 +42,7 @@ BALL_SHOT = (22,-36) #speed of ball in (x,y) when shot
 BALL_MAX_SPEED = 55
 BALL_PICKUP_DELAY = 500 #500 ms delay before picking up ball to make it fairer
 BALL_ANCHORS = [(39, 55), (41, 60), (42, 63), (41, 60), (42, 63), (40, 54), (37, 9), (39, 39)] #positions of ball to anchor onto player when someone has possession
+
+#backboard settings
+BACKBOARD_BOUNCE = 0.65 #how much speed ball keeps after bouncing off
+BACKBOARD_GRIP = 0.9 #speed kept when ball is sliding off of backboard
