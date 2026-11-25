@@ -28,6 +28,7 @@ HOOP_WIDTH = int(200 * HOOP_SCALE)
 HOOP_HEIGHT = int(600 * HOOP_SCALE)
 HOOP_BACKBOARD = (44, 17, 20, 58)
 HOOP_RIM = (76, 76)
+HOOP_FRONT = (59, 73, 33, 10) #x, y, width, height of front part of rim
 
 #player controls
 RED_CONTROLS = {"left": pg.K_a, "right": pg.K_d, "jump": pg.K_w, "shoot": pg.K_f} #dictionary for player red controls
@@ -48,5 +49,5 @@ BACKBOARD_BOUNCE = 0.65 #how much speed ball keeps after bouncing off
 BACKBOARD_GRIP = 0.9 #speed kept when ball is sliding off of backboard
 
 #scoring settings
-HOOP_SCORE_HALF = 8 #pixels distance of how far ball has to be from rim to score
+HOOP_SCORE_HALF = 12 #pixels distance of how far ball has to be from rim to score
 THREE_POINT_DISTANCE = 300 #pixel distance from hoop from 3 point line

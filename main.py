@@ -110,6 +110,8 @@ class Game: #initializing class Game
     def draw(self):
         self.screen.fill(BGCOLOR) #tells the code which color to fill the background
         self.all_sprites.draw(self.screen) #everything will be drawn on the screen
+        for hoop in self.all_hoops:
+            self.screen.blit(hoop.front, hoop.front_pos) #drawing 3 point line
         self.draw_text("FPS: " + str(floor(1/self.dt)), 24, WHITE, WIDTH/2, HEIGHT/4) #FPS on screen
         self.draw_text("Red: " + str(self.player1.points), 24, WHITE, WIDTH/2 - 150, HEIGHT/6)
         self.draw_text("Blue: " + str(self.player2.points), 24, WHITE, WIDTH/2 + 150, HEIGHT/6)
